@@ -16,18 +16,6 @@ module FFMPEG
     def initialize(path)
       @path = path
 
-      if remote?
-        @head = head
-        unless @head.is_a?(Net::HTTPSuccess)
-          raise Errno::ENOENT, "the URL '#{path}' does not exist or is not available (response code: #{@head.code})"
-        end
-      else
-        raise Errno::ENOENT, "the file '#{path}' does not exist" unless File.exist?(path)
-      end
-
-      @path = path
-
-      # ffmpeg will output to stderr
       command = [FFMPEG.ffprobe_binary, '-i', path, *%w(-print_format json -show_format -show_streams -show_error)]
       std_output = ''
       std_error = ''
