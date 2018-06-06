@@ -148,7 +148,11 @@ module FFMPEG
     end
 
     def remote?
-      @path =~ URI::regexp(%w(http https))
+      exploded_path = @path.scan(URI.regexp).flatten
+
+      return false if exploded_path.empty?
+
+      exploded_path.first.in?(%w(http https))
     end
 
     def local?
