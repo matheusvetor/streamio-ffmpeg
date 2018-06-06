@@ -47,9 +47,7 @@ module FFMPEG
       end
 
       if @metadata.key?(:error)
-
         @duration = 0
-
       else
         video_streams = @metadata[:streams].select { |stream| stream.key?(:codec_type) and stream[:codec_type] === 'video' }
         audio_streams = @metadata[:streams].select { |stream| stream.key?(:codec_type) and stream[:codec_type] === 'audio' }
@@ -102,26 +100,28 @@ module FFMPEG
 
         @audio_streams = audio_streams.map do |stream|
           {
-            :index => stream[:index],
-            :channels => stream[:channels].to_i,
-            :codec_name => stream[:codec_name],
-            :sample_rate => stream[:sample_rate].to_i,
-            :bitrate => stream[:bit_rate].to_i,
-            :channel_layout => stream[:channel_layout],
-            :tags => stream[:streams],
-            :overview => "#{stream[:codec_name]} (#{stream[:codec_tag_string]} / #{stream[:codec_tag]}), #{stream[:sample_rate]} Hz, #{stream[:channel_layout]}, #{stream[:sample_fmt]}, #{stream[:bit_rate]} bit/s"
+            index: stream[:index],
+            channels: stream[:channels].to_i,
+            codec_name: stream[:codec_name],
+            sample_rate: stream[:sample_rate].to_i,
+            bitrate: stream[:bit_rate].to_i,
+            channel_layout: stream[:channel_layout],
+            tags: stream[:streams],
+            overview: "#{stream[:codec_name]} (#{stream[:codec_tag_string]} / #{stream[:codec_tag]}),"\
+                      " #{stream[:sample_rate]} Hz, #{stream[:channel_layout]}, #{stream[:sample_fmt]},"\
+                      " #{stream[:bit_rate]} bit/s"
           }
         end
 
         audio_stream = @audio_streams.first
         unless audio_stream.nil?
-          @audio_channels = audio_stream[:channels]
-          @audio_codec = audio_stream[:codec_name]
-          @audio_sample_rate = audio_stream[:sample_rate]
-          @audio_bitrate = audio_stream[:bitrate]
+          @audio_channels       = audio_stream[:channels]
+          @audio_codec          = audio_stream[:codec_name]
+          @audio_sample_rate    = audio_stream[:sample_rate]
+          @audio_bitrate        = audio_stream[:bitrate]
           @audio_channel_layout = audio_stream[:channel_layout]
-          @audio_tags = audio_stream[:audio_tags]
-          @audio_stream = audio_stream[:overview]
+          @audio_tags           = audio_stream[:audio_tags]
+          @audio_stream         = audio_stream[:overview]
         end
 
       end
@@ -200,11 +200,11 @@ module FFMPEG
     end
 
     def transcode(output_file, options = EncodingOptions.new, transcoder_options = {}, &block)
-      Transcoder.new(self, output_file, options, transcoder_options).run &block
+      Transcoder.new(self, output_file, options, transcoder_options).run(&block)
     end
 
     def screenshot(output_file, options = EncodingOptions.new, transcoder_options = {}, &block)
-      Transcoder.new(self, output_file, options.merge(screenshot: true), transcoder_options).run &block
+      Transcoder.new(self, output_file, options.merge(screenshot: true), transcoder_options).run(&block)
     end
 
     protected
@@ -234,7 +234,7 @@ module FFMPEG
       output.force_encoding("ISO-8859-1")
     end
 
-    def head(location=@path, limit=FFMPEG.max_http_redirect_attempts)
+    def head(location = @path, limit = FFMPEG.max_http_redirect_attempts)
       url = URI(location)
       return unless url.path
 
@@ -251,7 +251,7 @@ module FFMPEG
         else
           response
       end
-    rescue SocketError, Errno::ECONNREFUSED => e
+    rescue SocketError, Errno::ECONNREFUSED
       nil
     end
   end
