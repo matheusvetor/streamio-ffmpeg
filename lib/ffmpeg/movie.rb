@@ -247,13 +247,13 @@ module FFMPEG
       response = http.request_head(url.request_uri)
 
       case response
-        when Net::HTTPRedirection then
-          raise FFMPEG::HTTPTooManyRequests if limit == 0
-          new_uri = url + URI(response['Location'])
+      when Net::HTTPRedirection then
+        raise FFMPEG::HTTPTooManyRequests if limit == 0
+        new_uri = url + URI(response['Location'])
 
-          head(new_uri, limit - 1)
-        else
-          response
+        head(new_uri, limit - 1)
+      else
+        response
       end
     rescue SocketError, Errno::ECONNREFUSED
       nil
